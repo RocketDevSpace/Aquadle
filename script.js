@@ -1,113 +1,77 @@
-const guessInput = document.getElementById('guess-input');
-const submitBtn = document.getElementById('submit-btn');
-const guessGrid = document.getElementById('guess-grid');
-const resultMessage = document.getElementById('result-message');
-const fishListElement = document.getElementById('fish-list');
+const guessInput = document.getElementById("guess-input");
+const submitBtn = document.getElementById("submit-btn");
+const guessGrid = document.getElementById("guess-grid");
+const resultMessage = document.getElementById("result-message");
 const resultsDiv = document.getElementById("results");
 
-const fishData = [
-  {
-    name: "Betta",
-    genus: "Betta",
-    diet: "Carnivore",
-    size: "Small",
-    behavior: "Aggressive",
-    tankLevel: "Top"
-  },
-  {
-    name: "Neon Tetra",
-    genus: "Paracheirodon",
-    diet: "Omnivore",
-    size: "Small",
-    behavior: "Peaceful",
-    tankLevel: "Middle"
-  },
-  {
-    name: "Corydoras",
-    genus: "Corydoras",
-    diet: "Omnivore",
-    size: "Small",
-    behavior: "Peaceful",
-    tankLevel: "Bottom"
-  },
-  {
-    name: "Angelfish",
-    genus: "Pterophyllum",
-    diet: "Omnivore",
-    size: "Medium",
-    behavior: "Semi-Aggressive",
-    tankLevel: "Middle"
-  },
-  {
-    name: "Guppy",
-    genus: "Poecilia",
-    diet: "Omnivore",
-    size: "Small",
-    behavior: "Peaceful",
-    tankLevel: "Top"
-  }
-];
+let fishData = [];
+let targetFish = null;
 
+fetch("fish.json")
+  .then((response) => response.json())
+  .then((data) => {
+    fishData = data;
 
-// Placeholder target
-const targetFish = fishData[Math.floor(Math.random() * fishData.length)];
+    // Choose a random fish once data is loaded
+    targetFish = fishData[Math.floor(Math.random() * fishData.length)];
 
-const fishNames = [
-  "Betta",
-  "Neon Tetra",
-  "Corydoras",
-  "Guppy",
-  "Platy",
-  "Molly",
-  "Angelfish",
-  "Swordtail",
-  "Zebra Danio",
-  "Cherry Barb"
-];
+    // Populate autocomplete list
+    populateFishList(fishData);
+  })
+  .catch((error) => {
+    console.error("Error loading fish data:", error);
+  });
 
-submitBtn.addEventListener('click', () => {
+submitBtn.addEventListener("click", () => {
   const guessName = guessInput.value.trim();
-  const guessedFish = fishData.find(f => f.name.toLowerCase() === guessName.toLowerCase());
+  const guessedFish = fishData.find(
+    (f) => f.name.toLowerCase() === guessName.toLowerCase(),
+  );
   if (!guessedFish) return;
-  
+
   checkGuess(guessedFish);
-  
-  guessInput.value = '';
+
+  guessInput.value = "";
 });
 
 // Dynamically add options to the datalist
-fishNames.forEach(name => {
-  const option = document.createElement('option');
-  option.value = name;
-  fishListElement.appendChild(option);
-});
+function populateFishList(data) {
+  const fishListElement = document.getElementById("fish-list");
+  fishListElement.innerHTML = ""; // Clear existing options
+
+  data.forEach((fish) => {
+    const option = document.createElement("option");
+    option.value = fish.name;
+    fishListElement.appendChild(option);
+  });
+}
 
 function checkGuess(guess) {
   const feedback = [];
 
   feedback.push({
     category: "Genus",
-    result: compareValue(guess.genus, targetFish.genus)
+    result: compareValue(guess.genus, targetFish.genus),
   });
 
   feedback.push({
     category: "Diet",
-    result: compareValue(guess.diet, targetFish.diet)
+    result: compareValue(guess.diet, targetFish.diet),
   });
 
   feedback.push({
     category: "Size",
-    result: compareValue(guess.size, targetFish.size)
+    result: compareValue(guess.size, targetFish.size),
   });
 
   feedback.push({
     category: "Behavior",
-    result: compareValue(guess.behavior, targetFish.behavior)
+    result: compareValue(guess.behavior, targetFish.behavior),
   });
 
   feedback.push({
     category: "Tank Level",
-    result: compareValue(guess.tankLevel, targetFish.tankLevel)
+    result: compareValue(guess.tankLevel, targetFish.tankLevel),
   });
 
   renderFeedback(guess.name, feedback);
@@ -119,7 +83,6 @@ function compareValue(guessValue, targetValue) {
 }
 
 function renderFeedback(name, feedback) {
-
   const row = document.createElement("div");
   row.className = "guess-row";
 
@@ -127,7 +90,7 @@ function renderFeedback(name, feedback) {
   nameEl.textContent = name + ": ";
   row.appendChild(nameEl);
 
-  feedback.forEach(f => {
+  feedback.forEach((f) => {
     const span = document.createElement("span");
     span.textContent = `${f.category}: ${f.result}  `;
     span.className = f.result; // for styling
@@ -136,5 +99,3 @@ function renderFeedback(name, feedback) {
 
   resultsDiv.appendChild(row);
 }
-
-
