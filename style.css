@@ -1,67 +1,143 @@
+/* Base styles */
 body {
-  font-family: sans-serif;
-  padding: 2rem;
-  background: #f0f8ff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f0f8ff;
+  color: #333;
+  overflow-x: hidden;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
 #game {
-  max-width: 600px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#guess-input {
+  padding: 8px;
+  width: 300px;
+  font-size: 1rem;
+}
+
+#submit-btn {
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 #guess-grid {
-  margin-top: 1rem;
+  margin-top: 10px;
 }
-
-.correct, .green {
-  background-color: #b3ffb3;
-  color: green;
-  font-weight: bold;
-}
-.partial, .yellow {
-  background-color: #ffffb3;
-  color: yellow;
-}
-.wrong, .red, .gray {
-  background-color: #ffb3b3;
-  color: red;
-}
-
-.guess-row {
-  margin-bottom: 0.5rem;
-  font-family: sans-serif;
-}
-
-.feedback-box {
-  padding: 8px 10px;
-  border-radius: 12px;
-  text-align: center;
-  background-color: lightgray;
-  font-size: 14px;
-  white-space: nowrap;
-  flex: 1;
+#feedback {
+  overflow-x: auto;
+  padding: 0.5rem;
 }
 
 .feedback-row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(160px, auto)); /* uniform columns */
+  gap: 4px;
+  min-width: 1440px; /* force scroll if screen is small */
+}
+
+.feedback-box {
+  padding: 8px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  word-break: break-word;
+  white-space: normal;
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
+  align-items: center;
+  justify-content: center;
 }
 
-.feedback-box.green {
-  background-color: #a7f3d0;
-}
-
-.feedback-box.yellow {
-  background-color: #fef08a;
-}
-
-.feedback-box.gray {
-  background-color: #e5e7eb;
-}
-
-.feedback-box.header {
+/* Header cells shouldn't wrap or shrink */
+.header-row {
   font-weight: bold;
   background-color: black;
   color: white;
+  white-space: nowrap;
+}
+
+/* Color classes */
+.green {
+  background-color: #c8f7c5;
+}
+
+.yellow {
+  background-color: #fff9b1;
+}
+
+.gray {
+  background-color: #eee;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#fish-image {
+  max-width: 150px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+#show-win-modal {
+  display: none; /* hidden by default */
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background-color: #f0f0f0;
+  transition: background-color 0.3s ease;
+  max-width: 200px; /* optional max width */
+  text-align: center;
+}
+
+#show-win-modal:hover {
+  background-color: #ddd;
 }

@@ -3,6 +3,12 @@ const submitBtn = document.getElementById("submit-btn");
 const guessGrid = document.getElementById("guess-grid");
 const resultMessage = document.getElementById("result-message");
 const resultsDiv = document.getElementById("results");
+const modal = document.getElementById("win-modal");
+const closeModalBtn = document.getElementById("close-modal");
+const fishImageEl = document.getElementById("fish-image");
+const fishNameEl = document.getElementById("fish-name");
+const guessCountEl = document.getElementById("guess-count");
+
 
 const ZONE_ORDER = {
   temperature: ["Cold", "Cool", "Moderate", "Warm", "Hot"],
@@ -12,6 +18,7 @@ const ZONE_ORDER = {
 
 let fishData = [];
 let targetFish = null;
+let guessCount = 0;
 
 fetch("fish.json")
   .then((response) => response.json())
@@ -35,10 +42,12 @@ submitBtn.addEventListener("click", () => {
   );
   if (!guessedFish) return;
 
+  guessCount++;
   checkGuess(guessedFish);
-
   guessInput.value = "";
 });
+
+renderFeedback({}, {}, true); // Header row
 
 // Dynamically add options to the datalist
 function populateFishList(data) {
@@ -118,6 +127,11 @@ function checkGuess(userGuess) {
   feedback.hardness = compareZoneRanges(userGuess.hardness_zones, targetFish.hardness_zones, "hardness");
 
   renderFeedback(userGuess, feedback);
+
+  if (userGuess.name.toLowerCase() === targetFish.name.toLowerCase()) {
+    // Show win modal with info
+    showWinModal(targetFish, guessCount); // You need to track guessCount somewhere
+  }
 }
 
 function compareZoneRanges(guessZones, correctZones, category) {
@@ -160,12 +174,9 @@ function compareZoneRanges(guessZones, correctZones, category) {
 }
 
 
+function renderFeedback(guess, feedback, isHeader = false) {
+  const feedbackElement = document.getElementById("feedback");
 
-function renderFeedback(guess, feedback) {
-  const feedbackContainer = document.createElement("div");
-  feedbackContainer.classList.add("feedback-row");
-
-  // Column definitions: key in data → label in header
   const categoryOrder = [
     { key: "species_type", label: "Species" },
     { key: "genus_family", label: "Genus / Family" },
@@ -180,69 +191,75 @@ function renderFeedback(guess, feedback) {
     { key: "hardness", label: "Hardness" }
   ];
 
-  // First cell: name
+  // Create the row container
+  const feedbackRow = document.createElement("div");
+  feedbackRow.classList.add("feedback-row");
+  if (isHeader) feedbackRow.classList.add("feedback-header");
+
+  // Name cell
   const nameCell = document.createElement("div");
   nameCell.classList.add("feedback-box");
-  nameCell.textContent = guess.name;
-  feedbackContainer.appendChild(nameCell);
+  nameCell.textContent = isHeader ? "Name" : guess.name;
+  if (isHeader) nameCell.classList.add("header-row");
+  feedbackRow.appendChild(nameCell);
 
-  // Render cells for each category
-  categoryOrder.forEach(({ key }) => {
+  // Category cells
+  categoryOrder.forEach(({ key, label }) => {
     const cell = document.createElement("div");
     cell.classList.add("feedback-box");
 
-    let displayValue = "";
-    let colorClass = "gray";
+    if (isHeader) {
+      cell.textContent = label;
+      cell.classList.add("header-row");
+    } else {
+      let displayValue = "";
+      let colorClass = "gray";
 
-    // Special case: Genus + Family combo
-    if (key === "genus_family") {
-      displayValue = `${guess.genus}\n(${guess.family})`;
-      colorClass = feedback[key];
+      if (key === "genus_family") {
+        displayValue = `${guess.genus}\n(${guess.family})`;
+        colorClass = feedback[key];
+      } else if (
+        ["temperature", "ph", "hardness", "max_size_category"].includes(key) &&
+        typeof feedback[key] === "object"
+      ) {
+        const guessValue = guess[key + (key === "max_size_category" ? "" : "_zones")] || [];
+        const fb = feedback[key] || {};
+        displayValue = `${formatZoneValue(guessValue)} ${fb.direction || ""}`.trim();
+        colorClass = fb.color || "gray";
+      } else if (key === "habitat_origin") {
+        const region = guess.region || "Unknown";
+        const location = guess.location || "";
+        displayValue = location ? `${region} / ${location}` : region;
+        colorClass = feedback[key];
+      } else if (Array.isArray(guess[key])) {
+        displayValue = guess[key].join(", ");
+        colorClass = feedback[key];
+      } else {
+        displayValue = guess[key];
+        colorClass = feedback[key];
+      }
+
+      cell.textContent = displayValue;
+      cell.classList.add(colorClass);
     }
 
-    // Environmental ranges (object with .status and .direction)
-    else if (
-      ["temperature", "ph", "hardness", "max_size_category"].includes(key) &&
-      typeof feedback[key] === "object"
-    ) {
-      const guessValue = guess[key + (key === "max_size_category" ? "" : "_zones")] || [];
-      const fb = feedback[key] || {};
-
-      // Display the value (e.g. "Small ↑") or zone ranges like "6.5–7.5 ↑"
-      displayValue = `${formatZoneValue(guessValue)} ${fb.direction || ""}`.trim();
-      colorClass = fb.color || "gray";
-    }
-
-
-
-
-    else if (key === "habitat_origin") {
-      const region = guess.region || "Unknown";
-      const location = guess.location || "";
-      displayValue = location ? `${region} / ${location}` : region;
-      colorClass = feedback[key];
-    }
-
-
-    // Multi-tag array (e.g., behavior)
-    else if (Array.isArray(guess[key])) {
-      displayValue = guess[key].join(", ");
-      colorClass = feedback[key];
-    }
-
-    // Standard value
-    else {
-      displayValue = guess[key];
-      colorClass = feedback[key];
-    }
-
-    cell.textContent = displayValue;
-    cell.classList.add(colorClass);
-    feedbackContainer.appendChild(cell);
+    feedbackRow.appendChild(cell);
   });
 
-  document.getElementById("feedback").appendChild(feedbackContainer);
+  // Insert header or guess row at the right position
+  if (isHeader) {
+    feedbackElement.appendChild(feedbackRow); // only one header, goes first
+  } else {
+    // Insert just after the header row (first child)
+    const headerRow = feedbackElement.querySelector(".feedback-header");
+    if (headerRow) {
+      feedbackElement.insertBefore(feedbackRow, headerRow.nextSibling);
+    } else {
+      feedbackElement.appendChild(feedbackRow);
+    }
+  }
 }
+
 
 
 // Helper to format arrays of zone names or display a fallback
@@ -255,3 +272,30 @@ function formatZoneValue(value) {
     return "Unknown";
   }
 }
+
+const showWinModalBtn = document.getElementById("show-win-modal");
+
+// Call this when the user wins:
+function showWinModal(winningFish, guessCount) {
+  // Placeholder image URL for now, later replace with winningFish.image or similar
+  const placeholderImgUrl = "https://via.placeholder.com/150";
+
+  fishImageEl.src = winningFish.image || placeholderImgUrl;
+  fishNameEl.textContent = `Fish: ${winningFish.name}`;
+  guessCountEl.textContent = `Guesses taken: ${guessCount}`;
+
+  modal.classList.remove("hidden");
+}
+
+// Close modal handler
+closeModalBtn.addEventListener("click", () => {
+  modal.classList.add("hidden");
+  showWinModalBtn.style.display = "block";
+});
+
+
+
+showWinModalBtn.addEventListener("click", () => {
+  modal.classList.remove("hidden");
+});
+

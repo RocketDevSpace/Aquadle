@@ -13,7 +13,8 @@
         "max_size_category": "Small",
         "temperature_zones": ["Moderate", "Warm"],
         "ph_zones": ["Slightly Acidic", "Neutral"],
-        "hardness_zones": ["Soft", "Moderately Soft"]
+        "hardness_zones": ["Soft", "Moderately Soft"],
+        "image": "https://images.unsplash.com/photo-1691387668414-8f142b0aa76c?q=80&w=643&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
         "name": "Convict Cichlid",
@@ -45,7 +46,8 @@
         "max_size_category": "Medium",
         "temperature_zones": ["Moderate", "Warm"],
         "ph_zones": ["Slightly Acidic", "Neutral"],
-        "hardness_zones": ["Moderately Soft", "Moderate"]
+        "hardness_zones": ["Moderately Soft", "Moderate"],
+        "image": "https://images.unsplash.com/photo-1706479980907-2d02f3184921?q=80&w=711&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
         "name": "Fancy Guppy",
@@ -61,7 +63,8 @@
         "max_size_category": "Small",
         "temperature_zones": ["Warm", "Tropical"],
         "ph_zones": ["Neutral", "Slightly Alkaline"],
-        "hardness_zones": ["Moderate", "Hard"]
+        "hardness_zones": ["Moderate", "Hard"],
+        "image": "https://images.unsplash.com/photo-1711826949992-3951d59c1ff2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
         "name": "Shell Dweller (Neolamprologus multifasciatus)",
