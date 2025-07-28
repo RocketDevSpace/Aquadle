@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fishdle</title>
+  <title>Aquadle</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>🐟 Fishdle</h1>
+  <h1>🐟 Aquadle</h1>
 
   <div id="game">
-    <input id="guess-input" placeholder="Enter fish name..." />
+    <input list="fish-list" id="guess-input" autocomplete="off" placeholder="Type a fish name..." />
+    <datalist id="fish-list"></datalist>
     <button id="submit-btn">Guess</button>
     <div id="guess-grid"></div>
     <p id="result-message"></p>
