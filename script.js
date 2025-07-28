@@ -128,6 +128,15 @@ function checkGuess(userGuess) {
 
   renderFeedback(userGuess, feedback);
 
+  // Remove guessed option from the datalist
+  const fishListElement = document.getElementById("fish-list");
+  const guessedOption = Array.from(fishListElement.options).find(
+    (opt) => opt.value.toLowerCase() === userGuess.name.toLowerCase()
+  );
+  if (guessedOption) {
+    fishListElement.removeChild(guessedOption);
+  }
+
   if (userGuess.name.toLowerCase() === targetFish.name.toLowerCase()) {
     // Show win modal with info
     showWinModal(targetFish, guessCount); // You need to track guessCount somewhere
@@ -229,7 +238,7 @@ function renderFeedback(guess, feedback, isHeader = false) {
       } else if (key === "habitat_origin") {
         const region = guess.region || "Unknown";
         const location = guess.location || "";
-        displayValue = location ? `${region} / ${location}` : region;
+        displayValue = location ? `${region} / ${location.join(", ")}` : region;
         colorClass = feedback[key];
       } else if (Array.isArray(guess[key])) {
         displayValue = guess[key].join(", ");
