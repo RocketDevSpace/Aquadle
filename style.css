@@ -31,3 +31,37 @@ body {
   margin-bottom: 0.5rem;
   font-family: sans-serif;
 }
+
+.feedback-box {
+  padding: 8px 10px;
+  border-radius: 12px;
+  text-align: center;
+  background-color: lightgray;
+  font-size: 14px;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.feedback-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.feedback-box.green {
+  background-color: #a7f3d0;
+}
+
+.feedback-box.yellow {
+  background-color: #fef08a;
+}
+
+.feedback-box.gray {
+  background-color: #e5e7eb;
+}
+
+.feedback-box.header {
+  font-weight: bold;
+  background-color: black;
+  color: white;
+}

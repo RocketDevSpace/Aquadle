@@ -5,9 +5,9 @@ const resultMessage = document.getElementById("result-message");
 const resultsDiv = document.getElementById("results");
 
 const ZONE_ORDER = {
-  temperature: ["cold", "cool", "moderate", "warm", "hot"],
-  ph: ["acidic", "slightly acidic", "neutral", "slightly alkaline", "alkaline"],
-  hardness: ["soft", "moderately soft", "moderate", "moderately hard", "hard"]
+  temperature: ["Cold", "Cool", "Moderate", "Warm", "Hot"],
+  ph: ["Acidic", "Slightly Acidic", "Neutral", "Slightly Alkaline", "Alkaline"],
+  hardness: ["Soft", "Moderately Soft", "Moderate", "Moderately Hard", "Hard"]
 };
 
 let fishData = [];
@@ -76,15 +76,21 @@ function checkGuess(userGuess) {
       ? (behaviorMatch.length === targetFish.behavior.length ? "green" : "yellow")
       : "gray";
 
-  // Habitat Origin (regional match)
+  // Habitat Origin (region + optional location)
+  const userHasLocation = !!userGuess.location;
+  const targetHasLocation = !!targetFish.location;
+
   if (userGuess.region === targetFish.region) {
-    if (targetFish.location && userGuess.location === targetFish.location) {
-        feedback.habitat_origin = "green"; // exact match
+    if (
+      (userHasLocation && targetHasLocation && userGuess.location === targetFish.location) ||
+      (!userHasLocation && !targetHasLocation)
+    ) {
+      feedback.habitat_origin = "green";
     } else {
-        feedback.habitat_origin = "yellow"; // same region, different or missing location
+      feedback.habitat_origin = "yellow";
     }
   } else {
-    feedback.habitat_origin = "gray"; // different region
+    feedback.habitat_origin = "gray";
   }
 
   // Tank Level (exact only, no yellow)
@@ -98,13 +104,14 @@ function checkGuess(userGuess) {
   const guessIndex = sizeCategories.indexOf(userGuess.max_size_category);
   const answerIndex = sizeCategories.indexOf(targetFish.max_size_category);
   if (guessIndex === answerIndex) {
-      feedback.max_size_category = "green";
+    feedback.max_size_category = { color: "green", direction: null };
   } else {
-      feedback.max_size_category = {
-          color: "gray",
-          direction: guessIndex < answerIndex ? "↑" : "↓"
-      };
+    feedback.max_size_category = {
+      color: "gray",
+      direction: guessIndex < answerIndex ? "↑" : "↓"
+    };
   }
+
   
   feedback.temperature = compareZoneRanges(userGuess.temperature_zones, targetFish.temperature_zones, "temperature");
   feedback.ph = compareZoneRanges(userGuess.ph_zones, targetFish.ph_zones, "ph");
@@ -117,15 +124,19 @@ function compareZoneRanges(guessZones, correctZones, category) {
   const order = ZONE_ORDER[category];
   if (!order) {
     console.warn(`Unknown category: ${category}`);
-    return { status: "gray", direction: null };
+    return { color: "gray", direction: null };
   }
 
-  // Convert zones to index ranges
   const guessIndices = guessZones.map(z => order.indexOf(z)).filter(i => i !== -1);
   const correctIndices = correctZones.map(z => order.indexOf(z)).filter(i => i !== -1);
 
+  console.log(`Comparing ${category}:`);
+  console.log("  Guess zones:", guessZones, "→ indices:", guessIndices);
+  console.log("  Correct zones:", correctZones, "→ indices:", correctIndices);
+
   if (!guessIndices.length || !correctIndices.length) {
-    return { status: "gray", direction: null };
+    console.warn("  One of the index lists is empty — falling back to gray/null");
+    return { color: "gray", direction: null };
   }
 
   const guessMin = Math.min(...guessIndices);
@@ -136,69 +147,103 @@ function compareZoneRanges(guessZones, correctZones, category) {
   const overlap = !(guessMax < correctMin || guessMin > correctMax);
 
   if (guessMin === correctMin && guessMax === correctMax) {
-    return { status: "green", direction: null };
+    return { color: "green", direction: null };
   } else if (overlap) {
-    return { status: "yellow", direction: null };
+    return { color: "yellow", direction: null };
   } else if (guessMax < correctMin) {
-    return { status: "gray", direction: "↑" }; // Guess is too low
+    console.log("  Guess is too low ↑");
+    return { color: "gray", direction: "↑" };
   } else {
-    return { status: "gray", direction: "↓" }; // Guess is too high
+    console.log("  Guess is too high ↓");
+    return { color: "gray", direction: "↓" };
   }
 }
+
 
 
 function renderFeedback(guess, feedback) {
   const feedbackContainer = document.createElement("div");
   feedbackContainer.classList.add("feedback-row");
 
-  const nameEl = document.createElement("div");
-  nameEl.classList.add("fish-name");
-  nameEl.textContent = guess.name;
-  console.log('name: ' + guess.name);
-  feedbackContainer.appendChild(nameEl);
+  // Column definitions: key in data → label in header
+  const categoryOrder = [
+    { key: "species_type", label: "Species" },
+    { key: "genus_family", label: "Genus / Family" },
+    { key: "diet", label: "Diet" },
+    { key: "behavior", label: "Behavior" },
+    { key: "habitat_origin", label: "Habitat" },
+    { key: "tank_level", label: "Tank Level" },
+    { key: "breeding_type", label: "Breeding" },
+    { key: "max_size_category", label: "Size" },
+    { key: "temperature", label: "Temp" },
+    { key: "ph", label: "pH" },
+    { key: "hardness", label: "Hardness" }
+  ];
 
-  const categories = Object.keys(guess).filter(k => k !== "name");
-  categories.forEach(category => {
-    const box = document.createElement("div");
-    box.classList.add("feedback-box");
+  // First cell: name
+  const nameCell = document.createElement("div");
+  nameCell.classList.add("feedback-box");
+  nameCell.textContent = guess.name;
+  feedbackContainer.appendChild(nameCell);
 
-    const label = document.createElement("span");
-    label.classList.add("feedback-label");
-    label.textContent = category;
-    box.appendChild(label);
+  // Render cells for each category
+  categoryOrder.forEach(({ key }) => {
+    const cell = document.createElement("div");
+    cell.classList.add("feedback-box");
 
-    const valueSpan = document.createElement("span");
-    valueSpan.classList.add("feedback-value");
+    let displayValue = "";
+    let colorClass = "gray";
 
-    const guessValue = guess[category];
-    const feedbackValue = feedback[category];
-
-    if (typeof feedbackValue === "object" && feedbackValue.status) {
-      // Special case for zone-based feedback (temp, pH, hardness)
-      valueSpan.textContent = `${formatZoneValue(displayValue)} ${feedbackValue.direction || ""}`;
-      valueSpan.classList.add(feedbackValue.status);
-
-    } else if (Array.isArray(guessValue)) {
-      // Tag-style feedback
-      valueSpan.textContent = guessValue.join(", ");
-      if (typeof feedbackValue === "string") {
-        valueSpan.classList.add(feedbackValue); // green/yellow/gray
-      }
-
-    } else {
-      // Simple string values
-      valueSpan.textContent = guessValue;
-      if (typeof feedbackValue === "string") {
-        valueSpan.classList.add(feedbackValue); // green/yellow/gray
-      }
+    // Special case: Genus + Family combo
+    if (key === "genus_family") {
+      displayValue = `${guess.genus}\n(${guess.family})`;
+      colorClass = feedback[key];
     }
 
-    box.appendChild(valueSpan);
-    feedbackContainer.appendChild(box);
+    // Environmental ranges (object with .status and .direction)
+    else if (
+      ["temperature", "ph", "hardness", "max_size_category"].includes(key) &&
+      typeof feedback[key] === "object"
+    ) {
+      const guessValue = guess[key + (key === "max_size_category" ? "" : "_zones")] || [];
+      const fb = feedback[key] || {};
+
+      // Display the value (e.g. "Small ↑") or zone ranges like "6.5–7.5 ↑"
+      displayValue = `${formatZoneValue(guessValue)} ${fb.direction || ""}`.trim();
+      colorClass = fb.color || "gray";
+    }
+
+
+
+
+    else if (key === "habitat_origin") {
+      const region = guess.region || "Unknown";
+      const location = guess.location || "";
+      displayValue = location ? `${region} / ${location}` : region;
+      colorClass = feedback[key];
+    }
+
+
+    // Multi-tag array (e.g., behavior)
+    else if (Array.isArray(guess[key])) {
+      displayValue = guess[key].join(", ");
+      colorClass = feedback[key];
+    }
+
+    // Standard value
+    else {
+      displayValue = guess[key];
+      colorClass = feedback[key];
+    }
+
+    cell.textContent = displayValue;
+    cell.classList.add(colorClass);
+    feedbackContainer.appendChild(cell);
   });
 
   document.getElementById("feedback").appendChild(feedbackContainer);
 }
+
 
 // Helper to format arrays of zone names or display a fallback
 function formatZoneValue(value) {
