@@ -15,10 +15,18 @@ body {
 
 .correct {
   background-color: #b3ffb3;
+  color: green;
+  font-weight: bold;
 }
 .partial {
   background-color: #ffffb3;
 }
 .wrong {
   background-color: #ffb3b3;
+  color: red;
+}
+
+.guess-row {
+  margin-bottom: 0.5rem;
+  font-family: sans-serif;
 }
