@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Betta",
+    "genus": "Betta",
+    "sizeZone": "B",
+    "behavior": "Aggressive",
+    "diet": "Carnivore",
+    "tempZones": ["C", "D"],
+    "pHZones": ["B", "C"],
+    "hardnessZones": ["B"],
+    "habitat": "Southeast Asia",
+    "tankLevel": "Top",
+    "breeding": "Bubble nest builder",
+    "type": "Fish"
+  }
+]
