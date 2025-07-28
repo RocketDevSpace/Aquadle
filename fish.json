@@ -1,42 +1,82 @@
 [
-  {
-    "name": "Betta",
-    "genus": "Betta",
-    "diet": "Carnivore",
-    "size": "Small",
-    "behavior": "Aggressive",
-    "tankLevel": "Top"
-  },
-  {
-    "name": "Neon Tetra",
-    "genus": "Paracheirodon",
-    "diet": "Omnivore",
-    "size": "Small",
-    "behavior": "Peaceful",
-    "tankLevel": "Middle"
-  },
-  {
-    "name": "Corydoras",
-    "genus": "Corydoras",
-    "diet": "Omnivore",
-    "size": "Small",
-    "behavior": "Peaceful",
-    "tankLevel": "Bottom"
-  },
-  {
-    "name": "Angelfish",
-    "genus": "Pterophyllum",
-    "diet": "Omnivore",
-    "size": "Medium",
-    "behavior": "Semi-Aggressive",
-    "tankLevel": "Middle"
-  },
-  {
-    "name": "Guppy",
-    "genus": "Poecilia",
-    "diet": "Omnivore",
-    "size": "Small",
-    "behavior": "Peaceful",
-    "tankLevel": "Top"
-  }
+    {
+        "name": "Neon Tetra",
+        "species_type": "Fish",
+        "genus": "Paracheirodon",
+        "family": "Characidae",
+        "diet": "Omnivore",
+        "behavior": ["Peaceful", "Schooling"],
+        "habitat_region": "South America",
+        "habitat_location": ["Amazon River"],
+        "tank_level": "Middle",
+        "breeding_type": "Egg Scatterer",
+        "max_size_category": "Small",
+        "temperature_zones": ["Moderate", "Warm"],
+        "ph_zones": ["Slightly Acidic", "Neutral"],
+        "hardness_zones": ["Soft", "Moderately Soft"]
+    },
+    {
+        "name": "Convict Cichlid",
+        "species_type": "Fish",
+        "genus": "Amatitlania",
+        "family": "Cichlidae",
+        "diet": "Omnivore",
+        "behavior": ["Semi-Aggressive", "Pairing"],
+        "habitat_region": "Central America",
+        "habitat_location": null,
+        "tank_level": "Bottom",
+        "breeding_type": "Substrate Spawner",
+        "max_size_category": "Medium",
+        "temperature_zones": ["Warm", "Tropical"],
+        "ph_zones": ["Neutral", "Slightly Alkaline"],
+        "hardness_zones": ["Moderate", "Hard"]
+    },
+    {
+        "name": "Bristlenose Pleco",
+        "species_type": "Fish",
+        "genus": "Ancistrus",
+        "family": "Loricariidae",
+        "diet": "Herbivore",
+        "behavior": ["Peaceful", "Solitary"],
+        "habitat_region": "South America",
+        "habitat_location": ["Amazon River"],
+        "tank_level": "Bottom",
+        "breeding_type": "Cave Spawner",
+        "max_size_category": "Medium",
+        "temperature_zones": ["Moderate", "Warm"],
+        "ph_zones": ["Slightly Acidic", "Neutral"],
+        "hardness_zones": ["Moderately Soft", "Moderate"]
+    },
+    {
+        "name": "Fancy Guppy",
+        "species_type": "Fish",
+        "genus": "Poecilia",
+        "family": "Poeciliidae",
+        "diet": "Omnivore",
+        "behavior": ["Peaceful", "Shoaling"],
+        "habitat_region": "South America",
+        "habitat_location": null,
+        "tank_level": "Top",
+        "breeding_type": "Livebearer",
+        "max_size_category": "Small",
+        "temperature_zones": ["Warm", "Tropical"],
+        "ph_zones": ["Neutral", "Slightly Alkaline"],
+        "hardness_zones": ["Moderate", "Hard"]
+    },
+    {
+        "name": "Shell Dweller (Neolamprologus multifasciatus)",
+        "species_type": "Fish",
+        "genus": "Neolamprologus",
+        "family": "Cichlidae",
+        "diet": "Carnivore",
+        "behavior": ["Territorial", "Pairing"],
+        "habitat_region": "Africa",
+        "habitat_location": ["Lake Tanganyika"],
+        "tank_level": "Bottom",
+        "breeding_type": "Cave Spawner",
+        "max_size_category": "Nano",
+        "temperature_zones": ["Tropical", "Hot"],
+        "ph_zones": ["Alkaline", "Very Alkaline"],
+        "hardness_zones": ["Hard", "Very Hard"]
+    }
 ]

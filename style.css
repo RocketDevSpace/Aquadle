@@ -13,15 +13,16 @@ body {
   margin-top: 1rem;
 }
 
-.correct {
+.correct, .green {
   background-color: #b3ffb3;
   color: green;
   font-weight: bold;
 }
-.partial {
+.partial, .yellow {
   background-color: #ffffb3;
+  color: yellow;
 }
-.wrong {
+.wrong, .red, .gray {
   background-color: #ffb3b3;
   color: red;
 }
