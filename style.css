@@ -94,7 +94,7 @@ h1 {
   z-index: 1000;
 }
 
-.modal.hidden {
+.hidden {
   display: none;
 }
 
@@ -119,12 +119,13 @@ h1 {
 }
 
 #fish-image {
+  display: block;
+  margin: 1rem auto;
   max-width: 150px;
   border-radius: 8px;
-  margin-bottom: 1rem;
 }
 
-#show-win-modal {
+#show-results-modal {
   display: none; /* hidden by default */
   margin: 1rem auto;
   padding: 0.5rem 1rem;
@@ -138,6 +139,26 @@ h1 {
   text-align: center;
 }
 
-#show-win-modal:hover {
+#show-results-modal:hover {
   background-color: #ddd;
 }
+
+.life-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+  gap: 5px;
+}
+
+.life-icon {
+  width: 20px;
+  height: 20px;
+  background-color: green;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.life-icon.lost {
+  background-color: lightgray;
+}
+

@@ -16,25 +16,27 @@
     <div id="guess-grid"></div>
   </div>
 
+  <div id="life-container" class="life-container">
+    <!-- JS will populate these -->
+  </div>
+
+
   <!-- Feedback grid including the fixed header row -->
   <div id="feedback-grid">
     <div id="feedback"></div>
   </div>
 
-  <div id="win-modal" class="modal hidden">
+  <div id="results-modal" class="modal hidden">
     <div class="modal-content">
-      <button id="close-modal" class="modal-close">&times;</button>
-      <h2>🎉 You Win!</h2>
-      <div id="winning-fish-info">
-        <!-- Fish info and image will go here -->
-        <img id="fish-image" src="https://via.placeholder.com/150" alt="Fish Image" />
-        <p id="fish-name"></p>
-        <p id="guess-count"></p>
-      </div>
+      <button id="close-results-modal" class="modal-close">&times;</button>
+      <p id="fish-text"></p> <!-- Win/Loss Message -->
+      <img id="fish-image" src="" />
+      <div id="fish-info"></div> <!-- Data gets filled in here -->
     </div>
   </div>
 
-  <button id="show-win-modal">View Results</button>
+
+  <button id="show-results-modal">View Results</button>
 
   <script type="module" src="./script.js"></script>
 </body>
