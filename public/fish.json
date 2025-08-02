@@ -11,7 +11,7 @@
         "tank_level": "Middle",
         "breeding_type": "Egg Scatterer",
         "max_size_category": "Small",
-        "temperature_zones": ["Moderate", "Warm"],
+        "temperature_zones": ["Temperate", "Warm"],
         "ph_zones": ["Slightly Acidic", "Neutral"],
         "hardness_zones": ["Soft", "Moderately Soft"],
         "image": "https://images.unsplash.com/photo-1691387668414-8f142b0aa76c?q=80&w=643&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -28,9 +28,9 @@
         "tank_level": "Bottom",
         "breeding_type": "Substrate Spawner",
         "max_size_category": "Medium",
-        "temperature_zones": ["Warm", "Tropical"],
+        "temperature_zones": ["Warm", "Hot"],
         "ph_zones": ["Neutral", "Slightly Alkaline"],
-        "hardness_zones": ["Moderate", "Hard"]
+        "hardness_zones": ["Moderate", "Moderately Hard"]
     },
     {
         "name": "Bristlenose Pleco",
@@ -44,7 +44,7 @@
         "tank_level": "Bottom",
         "breeding_type": "Cave Spawner",
         "max_size_category": "Medium",
-        "temperature_zones": ["Moderate", "Warm"],
+        "temperature_zones": ["Temperate", "Warm"],
         "ph_zones": ["Slightly Acidic", "Neutral"],
         "hardness_zones": ["Moderately Soft", "Moderate"],
         "image": "https://images.unsplash.com/photo-1706479980907-2d02f3184921?q=80&w=711&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -61,9 +61,9 @@
         "tank_level": "Top",
         "breeding_type": "Livebearer",
         "max_size_category": "Small",
-        "temperature_zones": ["Warm", "Tropical"],
+        "temperature_zones": ["Warm", "Hot"],
         "ph_zones": ["Neutral", "Slightly Alkaline"],
-        "hardness_zones": ["Moderate", "Hard"],
+        "hardness_zones": ["Moderate", "Moderately Hard"],
         "image": "https://images.unsplash.com/photo-1711826949992-3951d59c1ff2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
@@ -78,9 +78,9 @@
         "tank_level": "Bottom",
         "breeding_type": "Cave Spawner",
         "max_size_category": "Nano",
-        "temperature_zones": ["Tropical", "Hot"],
-        "ph_zones": ["Alkaline", "Very Alkaline"],
-        "hardness_zones": ["Hard", "Very Hard"]
+        "temperature_zones": ["Warm", "Hot"],
+        "ph_zones": ["Slightly Alkaline", "Alkaline"],
+        "hardness_zones": ["Moderately Hard", "Hard"]
     },
     {
       "name": "Corydoras Catfish",
@@ -94,7 +94,7 @@
       "tank_level": "Bottom",
       "breeding_type": "Egg Layer",
       "max_size_category": "Small",
-      "temperature_zones": ["Moderate", "Warm"],
+      "temperature_zones": ["Temperate", "Warm"],
       "ph_zones": ["Slightly Acidic", "Neutral"],
       "hardness_zones": ["Soft", "Moderately Soft"],
       "image": "https://images.unsplash.com/photo-1730530355813-fdfb30480141?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -112,8 +112,8 @@
       "breeding_type": "Bubble Nest Builder",
       "max_size_category": "Small",
       "temperature_zones": ["Warm"],
-      "ph_zones": ["Neutral", "Slightly Acidic"],
-      "hardness_zones": ["Soft", "Moderately Hard"],
+      "ph_zones": ["Slightly Acidic", "Neutral"],
+      "hardness_zones": ["Soft", "Moderately Soft"],
       "image": "https://images.unsplash.com/photo-1710382163926-76b22555b52c?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
@@ -130,7 +130,7 @@
       "max_size_category": "Medium",
       "temperature_zones": ["Warm"],
       "ph_zones": ["Neutral"],
-      "hardness_zones": ["Soft", "Moderately Hard"],
+      "hardness_zones": ["Soft", "Moderately Soft"],
       "image": "https://images.unsplash.com/photo-1608475174076-30bbfdd9f400?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
@@ -145,8 +145,8 @@
       "tank_level": "Top",
       "breeding_type": "Egg Scatterer",
       "max_size_category": "Small",
-      "temperature_zones": ["Cool", "Moderate"],
+      "temperature_zones": ["Cool", "Temperate"],
       "ph_zones": ["Neutral", "Slightly Alkaline"],
-      "hardness_zones": ["Moderately Soft", "Moderately Hard"]
+      "hardness_zones": ["Moderately Soft", "Moderate"]
     }
 ]
