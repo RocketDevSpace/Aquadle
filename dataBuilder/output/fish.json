@@ -1,0 +1,49 @@
+[
+  {
+    "scientificName": "Betta splendens",
+    "name": "Siamese fighting fish",
+    "genus": "Betta",
+    "family": "Osphronemidae",
+    "image": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Bojownik_syjamski.jpg",
+      "credit": "Own work",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Henryk Niestrój"
+    },
+    "commonName": "Betta",
+    "region": "Cambodia, Laos, Vietnam, Thailand",
+    "size": "7 cm",
+    "tankLevel": "Top",
+    "temperament": "Semi-Aggressive",
+    "shoaling": "No",
+    "reproduction": "Bubble Nester",
+    "diet": "Carnivore",
+    "temperatureF": "76 - 80",
+    "temperatureC": "24 - 27",
+    "pH": "6.5 - 7.5",
+    "hardness": "5 - 20",
+    "normalized": {
+      "temperatureZones": [
+        "medium",
+        "warm"
+      ],
+      "pHZones": [
+        "acidic",
+        "neutral",
+        "alkaline"
+      ],
+      "hardnessZones": [
+        "soft"
+      ],
+      "size": {
+        "cm": 7,
+        "inches": 2.7559055118110236,
+        "zone": "small"
+      },
+      "broaderRegions": [
+        "Southeast Asia"
+      ]
+    }
+  }
+]
