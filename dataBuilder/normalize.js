@@ -1,117 +1,144 @@
-// normalize.js
-
-const temperatureZones = [
-  { name: 'cold', min: 0, max: 19 },
-  { name: 'medium', min: 20, max: 25 },
-  { name: 'warm', min: 26, max: 40 },
-];
-
-const pHZones = [
-  { name: 'acidic', min: 0, max: 6.5 },
-  { name: 'neutral', min: 6.5, max: 7.5 },
-  { name: 'alkaline', min: 7.5, max: 14 },
-];
-
-const hardnessZones = [
-  { name: 'soft', min: 0, max: 60 },
-  { name: 'moderate', min: 61, max: 120 },
-  { name: 'hard', min: 121, max: 180 },
-];
-
-const sizeZones = [
-  { name: 'small', maxInches: 3 },
-  { name: 'medium', maxInches: 7 },
-  { name: 'large', maxInches: 15 },
-  { name: 'very large', maxInches: 100 },
-];
-
-// Map countries to broader regions — add more as you discover
-const regionMap = {
-  Cambodia: 'Southeast Asia',
-  Laos: 'Southeast Asia',
-  Vietnam: 'Southeast Asia',
-  Thailand: 'Southeast Asia',
-  Brazil: 'South America',
-  Peru: 'South America',
-  Colombia: 'South America',
-  // ...
+const ZONE_ORDER = {
+  temperature: ["Cold", "Cool", "Temperate", "Warm", "Hot"],
+  ph: ["Acidic", "Slightly Acidic", "Neutral", "Slightly Alkaline", "Alkaline"],
+  hardness: ["Soft", "Moderately Soft", "Moderate", "Moderately Hard", "Hard"]
 };
 
-function parseRange(rangeStr) {
-  if (!rangeStr) return null;
-  const parts = rangeStr.split('-').map(p => parseFloat(p.trim()));
-  if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-    return { min: parts[0], max: parts[1] };
-  } else if (!isNaN(parts[0])) {
-    return { min: parts[0], max: parts[0] };
+// Your existing helpers from before (parseZones, phToCategoryIndex, etc.) assumed present here
+
+function normalizeTankLevel(tankLevelStr) {
+  if (!tankLevelStr) return null;
+  const validLevels = ["Top", "Middle", "Bottom", "All Levels"];
+  let cleaned = tankLevelStr.replace(/\s*-\s*/g, "-").replace(/\s*,\s*/g, ",").trim();
+  let parts = cleaned.split(/[-&,]/).map(s => s.trim()).filter(Boolean);
+  let validParts = [];
+  for (let part of parts) {
+    if (validLevels.includes(part)) validParts.push(part);
+    else console.warn(`⚠ Unknown tank level "${part}" in "${tankLevelStr}"`);
   }
+  validParts = [...new Set(validParts)];
+  if (validParts.length > 1) return "All Levels";
+  if (validParts.length === 1) return validParts[0];
   return null;
 }
 
-function assignZones(range, zones) {
-  if (!range) return [];
-  return zones
-    .filter(zone => !(range.max < zone.min || range.min > zone.max))
-    .map(zone => zone.name);
+function sizeCategory(cm) {
+  if (cm <= 2) return "Nano";
+  if (cm <= 5) return "Small";
+  if (cm <= 15) return "Medium";
+  if (cm <= 30) return "Large";
+  if (cm <= 60) return "Giant";
+  return "Monster";
 }
 
-function cmToInches(cm) {
-  return cm / 2.54;
+function parseSizeCm(sizeStr) {
+  const match = sizeStr.match(/([\d.]+)/);
+  if (!match) return 0;
+  return parseFloat(match[1]);
 }
 
-function assignSizeZone(inches) {
-  for (const zone of sizeZones) {
-    if (inches <= zone.maxInches) return zone.name;
+function parseZones(rangeStr, categories, toIndexFn) {
+  if (!rangeStr) return [];
+  const nums = rangeStr.match(/(\d+\.?\d*)/g);
+  if (!nums || nums.length < 2) return [];
+  const low = parseFloat(nums[0]);
+  const high = parseFloat(nums[1]);
+  const lowIndex = toIndexFn(low);
+  const highIndex = toIndexFn(high);
+  const zones = [];
+  for (let i = lowIndex; i <= highIndex; i++) {
+    zones.push(categories[i]);
   }
-  return 'unknown';
+  return zones;
 }
 
-function parseSize(sizeStr) {
-  if (!sizeStr) return null;
-  const match = sizeStr.match(/([\d.]+)\s*cm/i);
-  if (!match) return null;
-  const cm = parseFloat(match[1]);
-  const inches = cmToInches(cm);
-  return { cm, inches, zone: assignSizeZone(inches) };
+function temperatureToCategoryIndex(tempF) {
+  if (tempF < 50) return 0;
+  if (tempF < 60) return 1;
+  if (tempF < 70) return 2;
+  if (tempF < 80) return 3;
+  return 4;
 }
 
-function mapRegions(originsStr) {
-  if (!originsStr) return [];
-  const countries = originsStr.split(',').map(s => s.trim());
-  const regions = new Set();
-  for (const country of countries) {
-    if (regionMap[country]) regions.add(regionMap[country]);
-    else regions.add('Unknown');
+function phToCategoryIndex(ph) {
+  if (ph < 6) return 0;
+  if (ph < 6.5) return 1;
+  if (ph <= 7.5) return 2;
+  if (ph <= 8) return 3;
+  return 4;
+}
+
+function hardnessToCategoryIndex(hardness) {
+  if (hardness < 4) return 0;
+  if (hardness < 8) return 1;
+  if (hardness < 12) return 2;
+  if (hardness < 20) return 3;
+  return 4;
+}
+
+function parseBroaderRegions(regionArray) {
+  if (!regionArray || regionArray.length === 0) return ["Unknown"];
+
+  // Map countries to continents (expand as needed)
+  const regionMap = {
+    Tanzania: "Africa",
+    Burundi: "Africa",
+    "Democratic Republic of the Congo": "Africa",
+    Zambia: "Africa",
+    Malawi: "Africa",
+    Brazil: "South America",
+    Peru: "South America",
+    Argentina: "South America",
+    Paraguay: "South America",
+    Venezuela: "South America",
+    Colombia: "South America",
+    China: "Asia",
+    Vietnam: "Asia",
+    Thailand: "Asia",
+    Japan: "Asia",
+    Philippines: "Asia",
+    India: "Asia",
+    Bangladesh: "Asia",
+    Guinea: "Africa",
+  };
+
+  const broaderSet = new Set();
+  for (const place of regionArray) {
+    broaderSet.add(regionMap[place] || place);
   }
-  return Array.from(regions);
+
+  if (broaderSet.size === 0) broaderSet.add("Unknown");
+
+  return [...broaderSet];
 }
 
-function normalizeFishData(fishArray) {
-  return fishArray.map(fish => {
-    const tempRangeC = parseRange(fish.temperatureC);
-    const tempZones = assignZones(tempRangeC, temperatureZones);
+function normalizeFishData(fish) {
+  const sizeCm = parseSizeCm(fish.size);
+  const maxSizeCategory = sizeCategory(sizeCm);
 
-    const pHRange = parseRange(fish.pH);
-    const pHZonesAssigned = assignZones(pHRange, pHZones);
+  // Locations as array (assumed already split in your input)
+  const locations = Array.isArray(fish.region) ? fish.region : [];
 
-    const hardnessRange = parseRange(fish.hardness);
-    const hardnessZonesAssigned = assignZones(hardnessRange, hardnessZones);
-
-    const sizeData = parseSize(fish.size);
-
-    const broaderRegions = mapRegions(fish.region);
-
-    return {
-      ...fish,
-      normalized: {
-        temperatureZones: tempZones,
-        pHZones: pHZonesAssigned,
-        hardnessZones: hardnessZonesAssigned,
-        size: sizeData,
-        broaderRegions: broaderRegions,
-      }
-    };
-  });
+  return {
+    scientificName: fish.scientificName,
+    genus: fish.genus,
+    family: fish.family,
+    commonName: fish.commonName || fish.name || null,
+    locations,
+    regions: parseBroaderRegions(locations),
+    behavior: [
+      fish.temperament,
+      fish.shoaling && fish.shoaling.toLowerCase() === "yes" ? "Shoaling" : null
+    ].filter(Boolean),
+    breeding_type: fish.reproduction || null,
+    diet: fish.diet || null,
+    image: fish.image || null,
+    max_size_category: maxSizeCategory,
+    tank_level: normalizeTankLevel(fish.tankLevel),
+    temperature_zones: parseZones(fish.temperatureF, ZONE_ORDER.temperature, temperatureToCategoryIndex),
+    ph_zones: parseZones(fish.pH, ZONE_ORDER.ph, phToCategoryIndex),
+    hardness_zones: parseZones(fish.hardness, ZONE_ORDER.hardness, hardnessToCategoryIndex)
+  };
 }
 
 module.exports = { normalizeFishData };

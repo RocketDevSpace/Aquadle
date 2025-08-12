@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-async function fetchFishFromAquadiction(url = 'https://aquadiction.world/species-spotlight/siamese-fighting-fish/') {
+async function fetchFishFromAquadiction(url) {
   console.log(`Fetching Aquadiction page: ${url}`);
 
   try {
@@ -22,61 +22,61 @@ async function fetchFishFromAquadiction(url = 'https://aquadiction.world/species
     const tables = $('table');
     console.log(`Found ${tables.length} <table> elements on the page.`);
 
-    // We'll parse each table separately
+    if (tables.length < 3) {
+      console.warn('Warning: Expected at least 3 tables but found less.');
+    }
 
-    // 1. Quick Facts (general info)
+    // Parse Quick Facts table
     const quickFactsTable = tables.eq(0);
     const quickFactsData = {};
-    quickFactsTable.find('tbody tr').each((index, row) => {
+    quickFactsTable.find('tbody tr').each((_, row) => {
       const key = $(row).find('th').text().trim();
       const value = $(row).find('td').text().trim();
-      if (key && value) {
-        quickFactsData[key] = value;
+      if (key) {
+        quickFactsData[key] = value || null;
       }
     });
     console.log('Quick Facts extracted:', quickFactsData);
 
-    // 2. Water Parameters (pH, hardness, etc)
+    // Parse Water Parameters table
     const waterParamsTable = tables.eq(1);
     const waterParamsData = {};
-    waterParamsTable.find('tbody tr').each((index, row) => {
+    waterParamsTable.find('tbody tr').each((_, row) => {
       const key = $(row).find('th').text().trim();
       const value = $(row).find('td').text().trim();
-      if (key && value) {
-        waterParamsData[key] = value;
+      if (key) {
+        waterParamsData[key] = value || null;
       }
     });
     console.log('Water Parameters extracted:', waterParamsData);
 
-    // 3. Temperature Range
+    // Parse Temperature Range table
     const tempTable = tables.eq(2);
     const tempData = {};
-    tempTable.find('tbody tr').each((index, row) => {
+    tempTable.find('tbody tr').each((_, row) => {
       const key = $(row).find('th').text().trim();
       const value = $(row).find('td').text().trim();
-      if (key && value) {
-        tempData[key] = value;
+      if (key) {
+        tempData[key] = value || null;
       }
     });
     console.log('Temperature Data extracted:', tempData);
 
-    // Now build the final filtered object with only the relevant keys:
-    // Map keys from Aquadiction to consistent camelCase field names
-
+    // Build filtered fish data with consistent keys
     const fishData = {
-        scientificName: quickFactsData['Scientific Name'] || 'Unknown',
-        commonName: quickFactsData['Other Names'] || null,
-        region: cleanOrigin(quickFactsData['Origins']) || null,
-        size: quickFactsData['Approx Max Size'] || null,
-        tankLevel: quickFactsData['Aquarium Level'] || null,
-        temperament: quickFactsData['Temperament'] || null,
-        shoaling: quickFactsData['Shoaling'] || null,
-        reproduction: quickFactsData['Reproduction'] || null,
-        diet: quickFactsData['Diet & Feeding'] || null,
-        temperatureF: tempData['℉'] || null,
-        temperatureC: tempData['℃'] || null,
-        pH: waterParamsData['pH'] || null,
-        hardness: waterParamsData['GH'] || null,
+      scientificName: quickFactsData['Scientific Name'] || 'Unknown',
+      commonName: quickFactsData['Other Names'] || null,
+      region: cleanOrigin(quickFactsData['Origins']) || null,
+      size: quickFactsData['Approx Max Size'] || null,
+      tankLevel: quickFactsData['Aquarium Level'] || null,
+      temperament: quickFactsData['Temperament'] || null,
+      shoaling: quickFactsData['Shoaling'] || null,
+      reproduction: quickFactsData['Reproduction'] || null,
+      diet: quickFactsData['Diet & Feeding'] || null,
+      temperatureF: tempData['℉'] || null,
+      temperatureC: tempData['℃'] || null,
+      pH: waterParamsData['pH'] || null,
+      hardness: waterParamsData['GH'] || null,
     };
 
     console.log('Filtered fish data:', fishData);
@@ -87,23 +87,21 @@ async function fetchFishFromAquadiction(url = 'https://aquadiction.world/species
     return [];
   }
 }
+
 function cleanOrigin(originStr) {
   if (!originStr) return null;
 
-  // Replace all whitespace (spaces, tabs, newlines) with a single space
-  let cleaned = originStr.replace(/\s+/g, ' ').trim();
+  // Remove leading/trailing whitespace and normalize multiple spaces
+  let cleaned = originStr.trim();
 
-  // Now split on single spaces since original separators are just whitespace
-  let parts = cleaned.split(' ').filter(Boolean);
+  // Split on 2+ spaces
+  let parts = cleaned
+    .split(/\s{2,}/) // <-- matches 2 or more spaces
+    .map(part => part.trim())
+    .filter(Boolean);
 
-  // Group consecutive parts into multi-word place names by detecting uppercase start:
-  // For example "South America" is two words, we want to keep them together.
-  // But your data seems like single words (countries), so we can just join by commas for now.
-
-  return parts.join(', ');
+  return parts;
 }
-
-
 
 
 module.exports = { fetchFishFromAquadiction };

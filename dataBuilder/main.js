@@ -3,64 +3,81 @@ const { fetchFishFromWikidata } = require('./wikidata');
 const { fetchFishFromAquadiction } = require('./aquadiction');
 const { normalizeFishData } = require('./normalize');
 const { fetchSpeciesList } = require('./fetchSpeciesList');
+const { dedupeFishData } = require('./dedupe');
 
 async function main() {
-
-  (async () => {
+  try {
     const speciesUrls = await fetchSpeciesList();
     console.log(`Found ${speciesUrls.length} species URLs.`);
-    // You can now loop over speciesUrls to scrape individual species data
-  })();
-  
-  const wikiFish = await fetchFishFromWikidata(); // e.g. [{ scientificName: "...", ... }]
-  const aquaFish = await fetchFishFromAquadiction(); // e.g. [{ scientificName: "...", ... }]
 
-  console.log("=== Wikipedia Data ===");
-  wikiFish.forEach((fish, i) => {
-    console.log(`Entry #${i}:`, fish.scientificName || fish.name || fish.species || fish);
-  });
+    const combinedResults = [];
+    const missingScientificNames = [];
+    const missingImages = [];
 
-  console.log("\n=== Aquadiction Data ===");
-  aquaFish.forEach((fish, i) => {
-    console.log(`Entry #${i}:`, fish.scientificName || fish.name || fish.species || fish);
-  });
+    for (const url of speciesUrls) {
+      console.log(`\nProcessing species URL: ${url}`);
 
-  // Log all scientific names for easier matching visibility
-  const wikiNames = wikiFish.map(f => (f.scientificName || "").toLowerCase());
-  const aquaNames = aquaFish.map(f => (f.scientificName || "").toLowerCase());
-  console.log("\nWikipedia scientific names:", wikiNames);
-  console.log("Aquadiction scientific names:", aquaNames);
+      const aqDataArray = await fetchFishFromAquadiction(url);
 
-  // Find names in wiki but missing from aqua
-  const missingInAqua = wikiNames.filter(name => !aquaNames.includes(name));
-  if (missingInAqua.length) {
-    console.warn("Warning: These scientific names from Wikipedia have NO match in Aquadiction:", missingInAqua);
+      if (!aqDataArray || aqDataArray.length === 0) {
+        console.warn('No data from Aquadiction, skipping this species.');
+        continue;
+      }
+
+      const aqData = aqDataArray[0]; // <-- get the actual fish object
+
+      console.log(`Aquadiction common name: ${aqData.commonName || 'UNKNOWN'}`);
+      console.log(`Aquadiction scientific name: ${aqData.scientificName || 'UNKNOWN'}`);
+
+      if (!aqData.scientificName) {
+        missingScientificNames.push(aqData.commonName || url);
+        console.warn('No scientific name found, skipping Wikidata fetch.');
+        continue;
+      }
+
+      // Fetch Wikidata info by scientific name
+      const wikiData = await fetchFishFromWikidata(aqData.scientificName);
+      if (!wikiData || wikiData.length === 0) {
+        missingScientificNames.push(aqData.scientificName || url);
+        console.warn(`No Wikidata found for ${aqData.scientificName}, skipping.`);
+        continue;
+      }
+
+      const hasImage = wikiData.some(fish => fish.image && fish.image.url);
+      if (!hasImage) {
+        missingImages.push(aqData.scientificName);
+        console.warn(`Wikidata results found but no images for: ${aqData.scientificName}`);
+        continue;
+      }
+      
+      const wf = wikiData[0];
+      console.log(`Wikidata scientific name: ${wf.scientificName || 'UNKNOWN'}`);
+
+      // Merge both data objects - Wikipedia data overwrites Aquadiction where keys overlap
+      const merged = { ...aqData, ...wf };
+
+      combinedResults.push(merged);
+    }
+
+    console.log(`\nProcessed ${combinedResults.length} species.`);
+
+    const normalizedFish = combinedResults.map(fish => normalizeFishData(fish));
+    console.log(`Normalized ${normalizedFish.length} fish.`);
+    
+    const dedupedFish = dedupeFishData(normalizedFish);
+    console.log(`Deduplicated to ${dedupedFish.length} fish.`);
+
+    fs.writeFileSync('./output/fish.json', JSON.stringify(dedupedFish, null, 2));
+    console.log("\n--- Species not found on Wikipedia ---");
+    console.log(missingScientificNames);
+
+    console.log("\n--- Species missing Wikipedia images ---");
+    console.log(missingImages);
+    
+    console.log('Saved normalized fish data.');
+  } catch (err) {
+    console.error('Error running main script:', err);
   }
-
-  // Find names in aqua but missing from wiki
-  const missingInWiki = aquaNames.filter(name => !wikiNames.includes(name));
-  if (missingInWiki.length) {
-    console.warn("Warning: These scientific names from Aquadiction have NO match in Wikipedia:", missingInWiki);
-  }
-
-  // Now merge on scientificName safely
-  const combined = wikiFish.map(wf => {
-    const match = aquaFish.find(af => {
-      // Defensive check to avoid undefined
-      if (!af.scientificName || !wf.scientificName) return false;
-      return af.scientificName.toLowerCase() === wf.scientificName.toLowerCase();
-    });
-    return match ? { ...wf, ...match } : wf;
-  });
-
-  console.log("\nMerged data preview:", combined);
-
-  const normalizedFish = normalizeFishData(combined);
-
-  fs.writeFileSync('./output/fish.json', JSON.stringify(normalizedFish, null, 2));
-  console.log('Saved normalized fish data.');
 }
 
-main().catch(err => {
-  console.error("Error running main script:", err);
-});
+main();

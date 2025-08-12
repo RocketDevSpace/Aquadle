@@ -1,5 +1,5 @@
 const axios = require('axios');
-const he = require('he'); // Add this to your package.json dependencies!
+const he = require('he');
 
 async function fetchImageMetadata(filename) {
   const title = `File:${filename}`;
@@ -11,7 +11,7 @@ async function fetchImageMetadata(filename) {
     prop: 'imageinfo',
     titles: title,
     iiprop: 'url|user|extmetadata',
-    origin: '*'
+    origin: '*',
   };
 
   try {
@@ -19,7 +19,10 @@ async function fetchImageMetadata(filename) {
     const pages = data.query.pages;
     const page = Object.values(pages)[0];
 
-    if (!page || !page.imageinfo) return null;
+    if (!page || !page.imageinfo) {
+      console.warn(`No imageinfo found for file: ${filename}`);
+      return null;
+    }
 
     const info = page.imageinfo[0];
     const meta = info.extmetadata;
@@ -33,16 +36,26 @@ async function fetchImageMetadata(filename) {
       attributionRequired: meta.AttributionRequired?.value === "true"
     };
   } catch (err) {
-    console.error("Failed to get image metadata:", err);
+    console.error(`Failed to get image metadata for ${filename}:`, err.message);
     return null;
   }
 }
 
-async function fetchFishFromWikidata() {
+/**
+ * Fetch fish data from Wikidata given a scientific name.
+ * Currently hardcoded for "Betta splendens" but can be parameterized.
+ * Returns an array (possibly empty) of fish objects with enriched data.
+ */
+async function fetchFishFromWikidata(aquadictionName = "Betta splendens") {
+  console.log(`Cleansing name: "${aquadictionName}"`)
+  const scientificName = cleanScientificName(aquadictionName);
+  console.log(`Querying Wikidata for scientific name: "${scientificName}"`);
+
   const query = `
     SELECT ?fish ?scientificName ?commonName ?genusLabel ?familyLabel ?image ?maxLength WHERE {
-      ?fish wdt:P225 "Betta splendens".           # Filter on scientific name here (can be parameterized later)
-      OPTIONAL { ?fish wdt:P225 ?scientificName. }  # Scientific name (redundant but explicit)
+      ?fish wdt:P225 "${scientificName}".
+
+      OPTIONAL { ?fish wdt:P225 ?scientificName. }
       OPTIONAL { ?fish rdfs:label ?commonName FILTER (LANG(?commonName) = "en") . }
       OPTIONAL { ?fish wdt:P18 ?image. }
       OPTIONAL { ?fish wdt:P2048 ?maxLength. }
@@ -64,23 +77,38 @@ async function fetchFishFromWikidata() {
 
   try {
     const response = await axios.get(url, { params: { query }, headers });
+    const bindings = response.data.results.bindings;
+
+    if (!bindings.length) {
+      console.warn(`No Wikidata results found for scientific name: "${scientificName}"`);
+      return [];
+    }
+
     const results = [];
 
-    for (const entry of response.data.results.bindings) {
-      const scientificName = entry.scientificName?.value || "Betta splendens"; // fallback hardcoded
+    for (const entry of bindings) {
+      const sciName = entry.scientificName?.value || scientificName;
       const commonName = entry.commonName?.value || "";
       const genus = entry.genusLabel?.value || "";
       const family = entry.familyLabel?.value || "";
       const imageUrl = entry.image?.value || null;
 
+      console.log(`Wikidata entry found: scientificName="${sciName}", commonName="${commonName}"`);
+
       let imageData = null;
       if (imageUrl) {
         const filename = decodeURIComponent(imageUrl.split('/').pop());
+        console.log(`Fetching image metadata for: ${filename}`);
         imageData = await fetchImageMetadata(filename);
+        if (!imageData) {
+          console.warn(`No image metadata found for ${filename}`);
+        }
+      } else {
+        console.log('No image URL found for this entry.');
       }
 
       results.push({
-        scientificName,
+        scientificName: sciName,
         name: commonName,
         genus,
         family,
@@ -96,10 +124,34 @@ async function fetchFishFromWikidata() {
 
     return results;
   } catch (err) {
-    console.error("Error querying Wikidata:", err);
+    console.error(`Error querying Wikidata for "${scientificName}":`, err.message);
     return [];
   }
 }
+
+function cleanScientificName(name) {
+  if (!name) return "";
+  console.log(`Cleaning scientific name: "${name}"`);
+
+  let cleaned = name;
+
+  // Remove anything in quotes (nicknames)
+  cleaned = cleaned.replace(/["'“”‘’].*?["'“”‘’]/g, '');
+
+  // Remove 'sp.', 'var.', 'cf.' suffixes INCLUDING trailing dot and spaces
+  cleaned = cleaned.replace(/\b(sp|var|cf)\.?\s*/gi, '');
+
+  // Remove any leftover trailing dots or commas or spaces
+  cleaned = cleaned.replace(/[.,\s]+$/, '');
+
+  // Collapse multiple spaces to single space and trim
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+  console.log(`Cleaned scientific name: "${cleaned}"`);
+  return cleaned;
+}
+
+
 
 function sanitizeHTML(input) {
   if (!input) return "";

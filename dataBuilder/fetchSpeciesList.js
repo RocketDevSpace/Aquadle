@@ -24,7 +24,6 @@ async function fetchSpeciesList(maxPages = 83) {
         if (href && href.startsWith('/species-spotlight/')) {
           // Filter out loadmore or non-species links if needed
           speciesUrls.add(`https://aquadiction.world${href}`);
-          console.log(`Found species link: ${href}`);
         }
       });
 
