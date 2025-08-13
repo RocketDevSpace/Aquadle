@@ -16,6 +16,8 @@ export function setupModals() {
 
   viewResultsBtn.addEventListener('click', () => {
     resultsModal.classList.remove('hidden');
+
+    history.pushState(null, document.title, location.href);
   });
   
 }
@@ -25,6 +27,8 @@ export function setupBackHandler(modal) {
     if (!modal.classList.contains('hidden')) {
       // If modal is open, close it instead of going back
       modal.classList.add('hidden');
+      const viewResultsBtn = document.getElementById('show-results-modal');
+      viewResultsBtn.style.display = 'block';
     }
   });
 }
