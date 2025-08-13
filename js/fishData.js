@@ -15,7 +15,7 @@ export function populateFishList(data) {
   datalist.innerHTML = '';
   data.forEach(fish => {
     const option = document.createElement('option');
-    option.value = fish.name;
+    option.value = fish.commonName;
     datalist.appendChild(option);
   });
 }

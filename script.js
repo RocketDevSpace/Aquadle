@@ -22,7 +22,8 @@ async function initializeGame() {
     setupGuessHandler(gameState.fishData);
     setupModals();
 
-    console.log("Game initialized with answer:", gameState.correctAnswer.name);
+    console.log("Game initialized with answer:", gameState.correctAnswer.commonName);
+    console.log("Fish data loaded:", gameState.correctAnswer);
   } catch (err) {
     console.error("Failed to initialize game:", err);
   }

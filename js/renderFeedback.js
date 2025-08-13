@@ -3,7 +3,7 @@ import { formatZoneValue } from './utils.js';
 
 // Optional: move this to a constants.js if needed
 const categoryOrder = [
-  { key: "name", label: "Name"}, 
+  { key: "commonName", label: "Name"}, 
   { key: "genus_family", label: "Genus / Family" },
   { key: "diet", label: "Diet" },
   { key: "behavior", label: "Behavior" },
@@ -49,12 +49,12 @@ export function renderFeedback(guess, feedback) {
         colorClass = fb || "gray";
       }
     } else if (key === "habitat_origin") {
-      const region = guess.region || "Unknown";
-      const location = guess.location || [];
-      displayValue = location.length > 0
-        ? `${region} / ${location.join(", ")}`
-        : region;
-      colorClass = feedback[key];
+        const regions = Array.isArray(guess.regions) && guess.regions.length > 0 ? guess.regions.join(", ") : "Unknown";
+        const locations = Array.isArray(guess.locations) ? guess.locations : [];
+        displayValue = locations.length > 0
+          ? `${regions} / ${locations.join(", ")}`
+          : regions;
+        colorClass = feedback[key];
     } else if (Array.isArray(guess[key])) {
       displayValue = guess[key].join(", ");
       colorClass = feedback[key];

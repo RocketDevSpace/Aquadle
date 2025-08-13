@@ -14,11 +14,11 @@ export function setupGuessHandler(fishData) {
     const guessText = input.value.trim();
     if (!guessText) return;
 
-    const guessedFish = fishData.find(f => f.name.toLowerCase() === guessText.toLowerCase());
+    const guessedFish = fishData.find(f => f.commonName.toLowerCase() === guessText.toLowerCase());
     
     if (!guessedFish) return;
 
-    const optionToRemove = document.querySelector(`#fish-list option[value="${guessedFish.name}"]`);
+    const optionToRemove = document.querySelector(`#fish-list option[value="${guessedFish.commonName}"]`);
     if (optionToRemove) {
       optionToRemove.remove();
     }
@@ -33,7 +33,7 @@ export function setupGuessHandler(fishData) {
 
     console.log(`Remaining guesses: ${gameState.remainingGuesses}`);
     
-    if (guessedFish.name.toLowerCase() === gameState.correctAnswer.name.toLowerCase()) {
+    if (guessedFish.commonName.toLowerCase() === gameState.correctAnswer.commonName.toLowerCase()) {
   
       showResults(gameState.correctAnswer, gameState.maxGuesses - gameState.remainingGuesses, true);
     } else if (gameState.remainingGuesses <= 0) {

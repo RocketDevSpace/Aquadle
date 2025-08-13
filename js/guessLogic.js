@@ -5,7 +5,7 @@ export function checkGuess(userGuess, targetFish) {
   const feedback = {};
 
   // Name (exact match only)
-  feedback.name = userGuess.name === targetFish.name ? "green" : "gray";
+  feedback.commonName = userGuess.commonName === targetFish.commonName ? "green" : "gray";
   
   // Genus / Family
   if (userGuess.genus === targetFish.genus) {
@@ -31,21 +31,32 @@ export function checkGuess(userGuess, targetFish) {
       : "gray";
 
   // Habitat Origin (region + optional location)
-  const userHasLocation = !!userGuess.location;
-  const targetHasLocation = !!targetFish.location;
+  function arraysOverlap(arr1, arr2) {
+    if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+    return arr1.some(item => arr2.includes(item));
+  }
 
-  if (userGuess.region === targetFish.region) {
-    if (
-      (userHasLocation && targetHasLocation && userGuess.location === targetFish.location) ||
-      (!userHasLocation && !targetHasLocation)
-    ) {
-      feedback.habitat_origin = "green";
-    } else {
-      feedback.habitat_origin = "yellow";
-    }
+  const userRegions = userGuess.regions || [];
+  const targetRegions = targetFish.regions || [];
+  const userLocations = userGuess.locations || [];
+  const targetLocations = targetFish.locations || [];
+
+  const regionsMatchFull = userRegions.length && targetRegions.length && userRegions.every(r => targetRegions.includes(r)) && targetRegions.every(r => userRegions.includes(r));
+  const regionsOverlapPartial = arraysOverlap(userRegions, targetRegions);
+
+  const locationsMatchFull = userLocations.length && targetLocations.length && userLocations.every(l => targetLocations.includes(l)) && targetLocations.every(l => userLocations.includes(l));
+  const locationsOverlapPartial = arraysOverlap(userLocations, targetLocations);
+
+  if (regionsMatchFull && locationsMatchFull) {
+    feedback.habitat_origin = "green";
+  } else if (regionsMatchFull && !locationsMatchFull) {
+    feedback.habitat_origin = "yellow";
+  } else if (regionsOverlapPartial || locationsOverlapPartial) {
+    feedback.habitat_origin = "yellow";
   } else {
     feedback.habitat_origin = "gray";
   }
+
 
   // Tank Level (exact only, no yellow)
   feedback.tank_level =
