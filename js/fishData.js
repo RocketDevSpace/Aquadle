@@ -1,7 +1,7 @@
 export async function loadFishData() {
   try {
     console.log('Loading fish data...')
-    const response = await fetch('fish.json');
+    const response = await fetch('public/fish.json');
     const data = await response.json();
     return data;
   } catch (error) {
