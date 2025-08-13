@@ -348,3 +348,10 @@ h1 {
   z-index: 500; /* above most content but below modals */
   box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
 }
+
+#guess-input:disabled,
+#submit-btn:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+  color: #999;
+}

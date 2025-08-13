@@ -1,3 +1,5 @@
+import { gameState } from "./gameState";
+
 export function setupModals() {
   
   const closeResultsModalBtn = document.getElementById('close-results-modal');
@@ -113,4 +115,11 @@ export function showResults(answer, guessesTaken, won = true) {
 
 
   modal.classList.remove('hidden');
+
+  const guessInput = document.getElementById('guess-input');
+  const submitBtn = document.getElementById('submit-btn');
+
+  guessInput.disabled = true;
+  submitBtn.disabled = true;
+  gameState.isGameOver = true;
 }
