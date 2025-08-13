@@ -9,10 +9,23 @@ export function setupModals() {
   closeResultsModalBtn.addEventListener('click', () => {
     resultsModal.classList.add('hidden');
     viewResultsBtn.style.display = 'block';
+    if (window.history.state !== null) {
+      history.back(); // go back one state to undo the modal push
+    }
   });
 
   viewResultsBtn.addEventListener('click', () => {
     resultsModal.classList.remove('hidden');
+  });
+  
+}
+
+export function setupBackHandler(modal) {
+  window.addEventListener('popstate', () => {
+    if (!modal.classList.contains('hidden')) {
+      // If modal is open, close it instead of going back
+      modal.classList.add('hidden');
+    }
   });
 }
 
@@ -115,6 +128,9 @@ export function showResults(answer, guessesTaken, won = true) {
 
 
   modal.classList.remove('hidden');
+
+  // Push a new history state to intercept back gesture
+  history.pushState(null, document.title, location.href);
 
   const guessInput = document.getElementById('guess-input');
   const submitBtn = document.getElementById('submit-btn');
